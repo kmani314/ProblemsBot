@@ -1,16 +1,41 @@
 const Discord = require('discord.js');
-const config = require('../config.json');
+const { BOT_TOKEN, prefix, db_string } = require('../config.json');
+const fs = require('fs');
+const db = require('./db');
 
 const client = new Discord.Client();
-client.login(config.BOT_TOKEN);
+client.commands = new Discord.Collection();
 
-const prefix = '#';
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-client.on("message", function(message) {
-  if (message.author.bot) return;
-  if (!message.content.startsWith(prefix)) return;
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
 
-  const commandBody = message.content.slice(prefix.length);
-  const args = commandBody.split(' ');
-  const command = args.shift().toLowerCase();
+client.on('message', message => {
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+	const args = message.content.slice(prefix.length).trim().split(/ +/);
+	const command = args.shift().toLowerCase();
+
+  if (!client.commands.has(command)) return;
+
+  try {
+    client.commands.get(command).execute(message, args);
+  } catch (err) {
+    console.log(err);
+    message.reply('Internal Error!');
+  }
+});
+
+client.on('guildCreate', guild => {
+  db.onGuildJoin(guild);
+  console.log(guild);
+});
+
+
+db.connection.once('open', () => {
+  client.login(BOT_TOKEN);
+  console.log("ProblemsBot online.");
 });
