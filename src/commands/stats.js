@@ -9,9 +9,11 @@ module.exports = {
     try {
       const asker = await user.findOne({ discord_id: message.author.id }).exec();
       let res = `Stats for **${message.member.displayName}**\n`;
-      res += `Score: **${asker.score}**\n`;
-      res += `Problems solved: **${asker.solved}**\n`;
-      res += `Problems given up: **${asker.given_up}**`;
+      res += `\`\`\``
+      res += `Score: ${asker.score}\n`;
+      res += `Problems correct: ${asker.right}\n`;
+      res += `Problems incorrect: ${asker.wrong}`;
+      res += `\`\`\``
       message.channel.send(res);
     } catch(err) {
       message.reply("Something went wrong.");

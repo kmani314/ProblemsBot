@@ -3,8 +3,8 @@ const { problem, user} = require('../schema');
 
 module.exports = {
   name: 'answer',
-  description: 'answer a question',
-  args: ['answer'],
+  description: 'get the answer to a problem',
+  args: [],
   async execute(message, args) {
     const info = message.author;
 
@@ -17,25 +17,7 @@ module.exports = {
         return;
       }
 
-      if (args.length == 0) {
-        message.reply("this command requires an argument.");
-        return;
-      }
-
-      // need to make this more complex
-      if (args[0] == prob.answer) {
-        asker.score += prob.difficulty;
-        message.reply(`nice! That is correct. You've earned **${prob.difficulty}** points.\n Your new score: **${asker.score}**`)  
-        asker.active = null;
-        asker.start = null;
-        asker.solved++;
-        asker.save();
-        return;
-      } else {
-        message.reply("you're trash. Try again, or do `!giveup` for the answer.")
-        return;
-      }
-
+      message.reply(`the answer is: ||${prob.answer}||.`);
     } catch(err) {
       message.reply("Something went wrong.");
       return;
