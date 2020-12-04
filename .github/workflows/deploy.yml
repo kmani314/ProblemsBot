@@ -1,0 +1,34 @@
+name: Deployment to Production
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install frontend dependencies
+      run: npm install
+
+    - name: Deployment
+      run: |
+        mkdir -p ~/.ssh
+        echo "${deploy_key}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishna@sidmani.com 'rm -rf /home/krishna/ProblemsBot'
+        rsync -avr -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no' . krishna@sidmani.com:/home/krishna/ProblemsBot
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishn@sidmani.com 'systemctl --user restart ProblemsBot'
+      env:
+        deploy_key: ${{ secrets.DEPLOY_KEY }}
