@@ -1,8 +1,9 @@
 name: Deployment to Production
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -27,8 +28,8 @@ jobs:
         mkdir -p ~/.ssh
         echo "${deploy_key}" > ~/.ssh/deploy_key
         chmod 600 ~/.ssh/deploy_key
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishna@sidmani.com 'rm -rf /home/krishna/ProblemsBot'
-        rsync -avr -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no' . krishna@sidmani.com:/home/krishna/ProblemsBot
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishn@sidmani.com 'systemctl --user restart ProblemsBot'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key deploy@sidmani.com 'rm -rf /home/deploy/ProblemsBot'
+        rsync -avr -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no' . deploy@sidmani.com:/home/deploy/ProblemsBot
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key deploy@sidmani.com 'systemctl --user restart ProblemsBot'
       env:
         deploy_key: ${{ secrets.DEPLOY_KEY }}
