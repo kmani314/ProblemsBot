@@ -14,10 +14,11 @@ module.exports = {
   },
 
   async addUser(info) {
-    let id;
     try {
-      const dbUser = await user.create({discord_id: info.id, score: 0});
-      return dbUser._id;
+      const dbUser = await user.create({
+        discord_id: info.id,
+      });
+      return dbUser;
     } catch(err) {
       if (err) throw err;
     }
