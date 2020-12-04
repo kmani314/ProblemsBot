@@ -1,5 +1,7 @@
 const db = require('../db');
 const { problem, user, guild } = require('../schema');
+const { MessageAttachment, MessageEmbed } = require('discord.js');
+const { color } = require('../../config.json');
 
 module.exports = {
   name: 'right',
@@ -10,6 +12,12 @@ module.exports = {
 
     try {
       const asker = await user.findOne({ discord_id: info.id }).exec();
+
+      if(!asker) {
+        message.reply("you aren't currently solving a problem");
+        return;
+      }
+
       const prob = await problem.findOne({ _id: asker.active });
 
       if (!prob) {
@@ -18,14 +26,21 @@ module.exports = {
       }
 
       asker.score += prob.difficulty;
-      message.reply(`nice! You've earned **${prob.difficulty}** points. ✅\n Your new score: **${asker.score}**`)  
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
+        .setTitle(`Correct answer!`)
+        .setDescription(`You've earned **${prob.difficulty}** points. ✅\n Your new score: **${asker.score}**`)
+
       asker.active = null;
       asker.start = null;
       asker.right++;
       asker.save();
-      return;
+
+      message.channel.send(embed);
     } catch(err) {
       message.reply("something went wrong.");
+      console.log(err);
       return;
     }
   }

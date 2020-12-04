@@ -31,7 +31,12 @@ client.on('message', message => {
 
 client.on('guildCreate', guild => {
   db.onGuildJoin(guild);
-  console.log(guild);
+  console.log(`Joined new: ${guild.name}`);
+});
+
+client.on('guildLeave', guild => {
+  db.onGuildLeave(guild);
+  console.log(`Left: ${guild.name}`)
 });
 
 

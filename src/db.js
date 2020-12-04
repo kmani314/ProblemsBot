@@ -7,10 +7,23 @@ mongoose.connection.on('error', console.error.bind(console, 'connection error: '
 
 module.exports = {
   connection: mongoose.connection,
-  onGuildJoin(info) {
-    const dbGuild = guild.create({ discord_id: info.id, users: [] }, (err, res) => {
-      if (err) return err;
+  async onGuildJoin(info) {
+    guild.create({ discord_id: info.id, users: [] }, (err, res) => {
+      if(err) {
+        console.log(err);
+        info.leave();
+      }
     });
+  },
+
+  async onGuildLeave(info) {
+    const server = await guild.findOne({ discord_id: info.id }).exec();
+
+    for (let i of server.users) {
+      await user.findByIdAndDelete(i).exec()
+    }
+
+    server.remove();
   },
 
   async addUser(info) {

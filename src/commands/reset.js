@@ -4,23 +4,25 @@ const { MessageAttachment, MessageEmbed } = require('discord.js');
 const { color } = require('../../config.json');
 
 module.exports = {
-  name: 'stats',
-  description: 'get your stats',
+  name: 'reset',
+  description: 'reset your stats',
   args: [],
   async execute(message, args) {
     try {
       const asker = await user.findOne({ discord_id: message.author.id }).exec();
+      const server = await guild.findOne({ discord_id: message.guild.id }).exec();
+
+      if (asker) {
+        server.users.remove(asker._id);
+        server.save();
+        asker.remove();
+      }
 
       const embed = new MessageEmbed()
         .setColor(color)
         .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
-        .setTitle(`Statistics`)
-        .setDescription(`Statistics can be reset with \`!reset\`, or for the whole server by an administrator running \`!reset-all\`  .`)
-        .addFields(
-          { name: '💯', value: asker.score, inline: true },
-          { name: '✅', value: asker.right, inline: true },
-          { name: '❌', value: asker.wrong, inline: true },
-        );
+        .setTitle(`Score reset`)
+        .setDescription(`Your personal score has been reset. Run \`!reset-all\` to reset the whole server.`)
 
       message.channel.send(embed);
     } catch(err) {

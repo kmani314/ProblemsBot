@@ -1,5 +1,7 @@
 const db = require('../db');
-const { problem, user, guild } = require('../schema');
+const { problem, user, guild, image } = require('../schema');
+const { MessageAttachment, MessageEmbed } = require('discord.js');
+const { color } = require('../../config.json');
 
 async function tryAddUser(message) {
   const info = message.author;
@@ -16,23 +18,11 @@ async function tryAddUser(message) {
     server.users.push(res.id);
 
     await server.save();
+    return res;
     console.log("new user: " + res.id);
   } catch(err) {
     throw err;
   }
-}
-
-async function addProblem(info) {
-  const prob = await problem.create(info);
-  return prob;
-}
-
-const test = {
-  difficulty: 10,
-  text: "What is 1 + 1?",
-  answer: "2",
-  source: "Test",
-  url: ""
 }
 
 module.exports = {
@@ -56,16 +46,29 @@ module.exports = {
       const fact = Math.floor(Math.random() * count);
       const rand = await problem.findOne().skip(fact);
 
-      res += `Here is your problem:\n Difficulty: ${rand.difficulty}\n **${rand.text}**`;
+      const figures = (await rand.execPopulate('figures')).figures;
 
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setTitle(rand.name || 'Problem statement')
+        .setURL(rand.url)
+        .setAuthor(rand.source)
+        .setDescription(rand.text)
+        .setFooter('Please run !answer when you are ready.');
+
+      if(figures[0]) {
+        embed.attachFiles(new MessageAttachment(figures[0].img, 'figure.png'))
+          .setImage('attachment://figure.png');
+      }
+
+      message.channel.send(embed);
       match.active = rand._id;
       match.given_problems.push(rand._id);
       match.start = Date.now();
       match.save();
 
-      message.reply(res);
     } catch(err) {
-      message.reply("Something went wrong.");
+      message.reply("something went wrong.");
       console.log(err);
     }
   }

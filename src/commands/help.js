@@ -1,7 +1,8 @@
 const fs = require('fs');
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js')).filter(file => file != 'help.js');
 const arr = [];
-const { prefix } = require('../../config.json');
+const { color, prefix } = require('../../config.json');
+const { MessageAttachment, MessageEmbed } = require('discord.js');
 
 arr.push({ name: 'help', args: [], description: 'get this menu'});
 
@@ -14,12 +15,17 @@ module.exports = {
   name: 'help',
   async execute(message) {
     try {
-      let res = "**Commands:**\`\`\`\n";
+      let fields = [];
       arr.forEach((a) => {
-        res += `${prefix}${a.name} [${a.args.map(a => `${a}, `)}]: ${a.description}\n`;
+        fields.push({name: `${prefix}${a.name} ${a.args.map(a => `${a} `)}`, value: a.description})
       });
-      res += "\`\`\`"
-      message.channel.send(res);
+
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setTitle('Help')
+        .addFields(fields);
+
+      message.channel.send(embed);
     } catch(err) {
       message.reply("Something went wrong.");
       console.log(err)

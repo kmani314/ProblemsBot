@@ -1,3 +1,6 @@
+const { MessageAttachment, MessageEmbed } = require('discord.js');
+const { color } = require('../../config.json');
+
 module.exports = {
   name: 'about',
   description: 'about the bot',
@@ -6,9 +9,13 @@ module.exports = {
     const info = message.author;
 
     try {
-      message.channel.send("**About ProblemsBot:**\n\`\`\`Written by krishnamani#2671, problems from various sources.\`\`\`");
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setTitle('About')
+        .setDescription('Written by krishnmani#2671. No copyright infringment intended.');
+      message.channel.send(embed);
     } catch(err) {
-      kessage.reply("Something went wrong.");
+      message.reply("Something went wrong.");
       console.log(err);
     }
   }

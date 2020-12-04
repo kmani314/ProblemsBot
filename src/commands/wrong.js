@@ -1,5 +1,7 @@
 const db = require('../db');
 const { problem, user, guild } = require('../schema');
+const { MessageAttachment, MessageEmbed } = require('discord.js');
+const { color } = require('../../config.json');
 
 module.exports = {
   name: 'wrong',
@@ -10,6 +12,12 @@ module.exports = {
 
     try {
       const asker = await user.findOne({ discord_id: info.id }).exec();
+
+      if(!asker) {
+        message.reply("you aren't currently solving a problem");
+        return;
+      }
+
       const prob = await problem.findOne({ _id: asker.active });
 
       if (!prob) {
@@ -17,16 +25,21 @@ module.exports = {
         return;
       }
 
-      // you're penalized less for giving up on hard problems
       const penalty = (11 - prob.difficulty);
       asker.score -= penalty;
-      message.reply(`you've lost **${penalty}** points for getting it wrong. ❌\n Your new score: **${asker.score}**`);
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
+        .setTitle(`Incorrect answer`)
+        .setDescription(`You've lost **${penalty}** points. ❌\n Your new score: **${asker.score}**`);
+
+      // you're penalized less for giving up on hard problems
       asker.active = null;
       asker.start = null;
       asker.wrong++;
       asker.save();
-      return;
 
+      message.channel.send(embed);
     } catch(err) {
       message.reply("something went wrong.");
       return;
