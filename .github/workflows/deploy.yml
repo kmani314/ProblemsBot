@@ -24,9 +24,10 @@ jobs:
       run: npm install
 
     - name: Generate bot config
-      run: 'npm run botConfig "${bot_key}"'
+      run: 'npm run botConfig "${bot_key}" "${db_url}"'
       env:
         bot_key: ${{ secrets.BOT_KEY }}
+        db_url: ${{ secrets.DB_STRING }}
 
     - name: Deployment
       run: |
