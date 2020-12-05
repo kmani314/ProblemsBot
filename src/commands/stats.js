@@ -13,6 +13,7 @@ module.exports = {
 
       if(!asker) {
         message.reply("you haven't answered any problems.");
+        return;
       }
 
       const embed = new MessageEmbed()
