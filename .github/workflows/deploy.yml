@@ -23,6 +23,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Generate bot config
+        run: 'npm run botConfig "${bot_key}" "${db_url}"'
+        env:
+          bot_key: ${{ secrets.BOT_KEY }}
+          db_url: ${{ secrets.DB_STRING }
+
     - name: Lint
       run: npm run lint 
 
@@ -36,7 +42,3 @@ jobs:
 
     - name: Deploy
       run: pm2 deploy ecosystem.config.js production update
-      env:
-        bot_key: ${{ secrets.BOT_KEY }}
-        db_url: ${{ secrets.DB_STRING }}
-
