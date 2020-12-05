@@ -24,7 +24,7 @@ jobs:
       run: npm install
 
     - name: Lint
-      run: npm lint 
+      run: npm run lint 
 
     - name: Generate bot config
       run: 'npm run botConfig "${bot_key}" "${db_url}"'
