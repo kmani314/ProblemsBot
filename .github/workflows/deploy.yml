@@ -41,4 +41,4 @@ jobs:
         deploy_key: ${{ secrets.DEPLOY_KEY }}
 
     - name: Deploy
-      run: 'npx pm2 deploy ecosystem.config.js production update'
+      run: 'npx pm2 deploy ecosystem.config.cjs production update'
