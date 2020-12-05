@@ -1,43 +1,44 @@
-const db = require('../db');
-const { problem, user, guild } = require('../schema');
-const { MessageAttachment, MessageEmbed } = require('discord.js');
-const { color } = require('../../config.json');
+import { MessageEmbed } from 'discord.js';
+import { user, guild } from '../schema.js';
+import config from '../../config.json';
 
-module.exports = {
+export default {
   name: 'reset-all',
   description: 'reset the whole server',
   args: [],
-  async execute(message, args) {
+  async execute(message) {
     try {
       const server = await guild.findOne({ discord_id: message.guild.id }).exec();
 
       if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])) {
         const embed = new MessageEmbed()
-          .setColor(color)
+          .setColor(config.color)
           .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
-          .setTitle(`Insufficient permissions`)
-          .setDescription(`You must be able to ban and kick to reset the server.`)
+          .setTitle('Insufficient permissions')
+          .setDescription('You must be able to ban and kick to reset the server.');
         message.channel.send(embed);
         return;
       }
 
-      for (let i of server.users) {
-        await user.findByIdAndDelete(i).exec()
+      /* eslint-disable */
+      for (const i of server.users) {
+        await user.findByIdAndDelete(i).exec();
       }
+      /* eslint-enable */
 
       server.users = [];
       server.save();
 
       const embed = new MessageEmbed()
-        .setColor(color)
+        .setColor(config.color)
         .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
-        .setTitle(`Server reset`)
-        .setDescription(`Stats for the entire server have been reset.`)
+        .setTitle('Server reset')
+        .setDescription('Stats for the entire server have been reset.');
 
       message.channel.send(embed);
-    } catch(err) {
-      message.reply("Something went wrong.");
+    } catch (err) {
+      message.reply('Something went wrong.');
       console.log(err);
     }
-  }
-}
+  },
+};

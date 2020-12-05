@@ -1,19 +1,18 @@
-const db = require('../db');
-const { problem, user, guild } = require('../schema');
-const { MessageAttachment, MessageEmbed } = require('discord.js');
-const { color } = require('../../config.json');
+import { MessageEmbed } from 'discord.js';
+import { problem, user } from '../schema.js';
+import config from '../../config.json';
 
-module.exports = {
+export default {
   name: 'right',
   description: 'mark the problem right',
   args: [],
-  async execute(message, args) {
+  async execute(message) {
     const info = message.author;
 
     try {
       const asker = await user.findOne({ discord_id: info.id }).exec();
 
-      if(!asker) {
+      if (!asker) {
         message.reply("you aren't currently solving a problem");
         return;
       }
@@ -27,21 +26,20 @@ module.exports = {
 
       asker.score += prob.difficulty;
       const embed = new MessageEmbed()
-        .setColor(color)
+        .setColor(config.color)
         .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
-        .setTitle(`Correct answer!`)
-        .setDescription(`You've earned **${prob.difficulty}** points. ✅\n Your new score: **${asker.score}**`)
+        .setTitle('Correct answer!')
+        .setDescription(`You've earned **${prob.difficulty}** points. ✅\n Your new score: **${asker.score}**`);
 
       asker.active = null;
       asker.start = null;
-      asker.right++;
+      asker.right += 1;
       asker.save();
 
       message.channel.send(embed);
-    } catch(err) {
-      message.reply("something went wrong.");
+    } catch (err) {
+      message.reply('something went wrong.');
       console.log(err);
-      return;
     }
-  }
-}
+  },
+};

@@ -1,19 +1,18 @@
-const db = require('../db');
-const { problem, user } = require('../schema');
-const { MessageAttachment, MessageEmbed } = require('discord.js');
-const { color } = require('../../config.json');
+import { MessageAttachment, MessageEmbed } from 'discord.js';
+import { problem, user } from '../schema.js';
+import config from '../../config.json';
 
-module.exports = {
+export default {
   name: 'answer',
   description: 'get the answer to a problem',
   args: [],
-  async execute(message, args) {
+  async execute(message) {
     const info = message.author;
 
     try {
       const asker = await user.findOne({ discord_id: info.id }).exec();
 
-      if(!asker) {
+      if (!asker) {
         message.reply("you aren't currently solving a problem");
         return;
       }
@@ -28,22 +27,21 @@ module.exports = {
       const figures = (await prob.execPopulate('answerFigures')).answerFigures;
 
       const embed = new MessageEmbed()
-        .setColor(color)
+        .setColor(config.color)
         .setTitle('Answer')
         .setAuthor(prob.source)
         .setURL(prob.url)
         .setDescription(prob.answer);
 
-      if(figures[0]) {
+      if (figures[0]) {
         embed.attachFiles(new MessageAttachment(figures[0].img, 'figure.png'))
           .setImage('attachment://figure.png');
       }
 
       message.channel.send(embed);
-    } catch(err) {
+    } catch (err) {
       console.log(err);
-      message.reply("something went wrong.");
-      return;
+      message.reply('something went wrong.');
     }
-  }
-}
+  },
+};

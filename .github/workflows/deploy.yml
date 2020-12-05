@@ -1,4 +1,4 @@
-name: Deployment to Production
+name: Deployment
 
 on:
   push:
@@ -20,8 +20,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install frontend dependencies
+    - name: Install dependencies
       run: npm install
+
+    - name: Lint
+      run: npm lint 
 
     - name: Generate bot config
       run: 'npm run botConfig "${bot_key}" "${db_url}"'

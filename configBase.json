@@ -1,5 +1,4 @@
 {
-    "prefix": "!",
-    "db_string": "mongodb://localhost:27017/test",
-   "color": "#FAA613"
+    "prefix": "^",
+   "color": "#129490"
 }

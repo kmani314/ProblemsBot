@@ -1,34 +1,37 @@
-const fs = require('fs');
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js')).filter(file => file != 'help.js');
-const arr = [];
-const { color, prefix } = require('../../config.json');
-const { MessageAttachment, MessageEmbed } = require('discord.js');
+import { MessageEmbed } from 'discord.js';
+import config from '../../config.json';
 
-arr.push({ name: 'help', args: [], description: 'get this menu'});
+import about from './about.js';
+import answer from './answer.js';
+import leaderboard from './leaderboard.js';
+import problem from './problem.js';
+import resetAll from './reset-all.js';
+import reset from './reset.js';
+import right from './right.js';
+import wrong from './wrong.js';
+import stats from './stats.js';
 
-for (const file of commandFiles) {
-	const command = require(`./${file}`);
-  arr.push(command);
-}
+const commands = [about, answer, leaderboard, problem, resetAll, reset, right, wrong, stats];
+commands.push({ name: 'help', args: [], description: 'get this menu' });
 
-module.exports = {
+export default {
   name: 'help',
   async execute(message) {
     try {
-      let fields = [];
-      arr.forEach((a) => {
-        fields.push({name: `${prefix}${a.name} ${a.args.map(a => `${a} `)}`, value: a.description})
+      const fields = [];
+      commands.forEach((a) => {
+        fields.push({ name: `${config.prefix}${a.name} ${a.args.map((b) => `${b} `)}`, value: a.description });
       });
 
       const embed = new MessageEmbed()
-        .setColor(color)
+        .setColor(config.color)
         .setTitle('Help')
         .addFields(fields);
 
       message.channel.send(embed);
-    } catch(err) {
-      message.reply("Something went wrong.");
-      console.log(err)
+    } catch (err) {
+      message.reply('Something went wrong.');
+      console.log(err);
     }
-  }
-}
+  },
+};
