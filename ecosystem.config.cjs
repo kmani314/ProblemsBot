@@ -13,6 +13,7 @@ module.exports = {
   deploy: {
     production: {
       user: 'krishna',
+      key: '~/.ssh/deploy.key',
       host: 'sidmani.com',
       ref: 'origin/master',
       repo: 'https://github.com/kmani314/ProblemsBot',
