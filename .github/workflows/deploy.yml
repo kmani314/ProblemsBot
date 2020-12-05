@@ -23,22 +23,20 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Generate bot config
-      run: 'npm run botConfig "${bot_key}" "${db_url}"'
+    - name: Lint
+      run: npm run lint 
+
+    - name: SSH setup
+      run: |
+        mkdir -p ~/.ssh
+        echo "${deploy_key}" > ~/.ssh/deploy.key
+        chmod 600 ~/.ssh/deploy.key
+      env:
+        deploy_key: ${{ secrets.DEPLOY_KEY }}
+
+    - name: Deploy
+      run: pm2 deploy ecosystem.config.js production update
       env:
         bot_key: ${{ secrets.BOT_KEY }}
         db_url: ${{ secrets.DB_STRING }}
 
-    - name: Lint
-      run: npm run lint 
-
-    - name: Deployment
-      run: |
-        mkdir -p ~/.ssh
-        echo "${deploy_key}" > ~/.ssh/deploy_key
-        chmod 600 ~/.ssh/deploy_key
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishna@sidmani.com 'systemctl --user stop ProblemsBot && rm -rf /home/krishna/ProblemsBot'
-        rsync -avr -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no' . krishna@sidmani.com:/home/krishna/ProblemsBot
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key krishna@sidmani.com 'systemctl --user start ProblemsBot'
-      env:
-        deploy_key: ${{ secrets.DEPLOY_KEY }}
