@@ -17,11 +17,7 @@ module.exports = {
       ref: 'origin/master',
       repo: 'https://github.com/kmani314/ProblemsBot',
       path: '/home/krishna/ProblemsBot',
-      'post-deploy': 'npm install && npm run botConfig && pm2 startOrRestart ecosystem.config.cjs --env production',
-      env: {
-        bot_key: process.env.bot_key,
-        db_string: process.env.db_string,
-      },
+      'post-deploy': `npm install && npm run botConfig ${process.env.bot_key} ${process.env.db_string} && pm2 startOrRestart ecosystem.config.cjs`,
     },
   },
 };
