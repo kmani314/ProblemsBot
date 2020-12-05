@@ -1,5 +1,4 @@
 {
-    "BOT_TOKEN": "Nzg0MTEyNzc2MTQ2MTkwMzg3.X8kj7Q.FGBhGEmeSVAJLY4jAUGxauqrddQ",
     "prefix": "!",
     "db_string": "mongodb://localhost:27017/test",
    "color": "#FAA613"
