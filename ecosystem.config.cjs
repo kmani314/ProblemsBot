@@ -21,7 +21,7 @@ module.exports = {
       'post-deploy': 'npm install && npm run botConfig && pm2 startOrRestart ecosystem.config.cjs --env production',
       env: {
         bot_key: process.env.bot_key,
-        db_string: process.env.db_url,
+        db_string: process.env.db_string,
       },
     },
   },
