@@ -17,7 +17,6 @@ module.exports = {
       ref: 'origin/master',
       repo: 'https://github.com/kmani314/ProblemsBot',
       path: '/home/krishna/ProblemsBot',
-      'pre-setup': 'rm -rf /home/krishna/ProblemsBot',
       'post-deploy': 'npm install && npm run botConfig && pm2 startOrRestart ecosystem.config.cjs --env production',
       env: {
         bot_key: process.env.bot_key,
