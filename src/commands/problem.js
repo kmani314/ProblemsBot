@@ -45,6 +45,11 @@ module.exports = {
       const count = await problem.countDocuments().exec();
       const fact = Math.floor(Math.random() * count);
       const rand = await problem.findOne().skip(fact);
+      
+      if(!rand) {
+        message.reply("I don't have any problems right now. Please try later.");
+        return;
+      }
 
       const figures = (await rand.execPopulate('figures')).figures;
 

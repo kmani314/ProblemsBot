@@ -23,6 +23,11 @@ jobs:
     - name: Install frontend dependencies
       run: npm install
 
+    - name: Generate bot config
+      run: 'npm run botConfig "${bot_key}"'
+      env:
+        bot_key: ${{ secrets.BOT_KEY }}
+
     - name: Deployment
       run: |
         mkdir -p ~/.ssh
