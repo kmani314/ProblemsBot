@@ -37,8 +37,10 @@ jobs:
         mkdir -p ~/.ssh
         echo "${deploy_key}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        echo "${known_hosts}" > ~/.ssh/known_hosts
       env:
         deploy_key: ${{ secrets.DEPLOY_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
     - name: Deploy
       run: 'npx pm2 deploy ecosystem.config.cjs production update'
