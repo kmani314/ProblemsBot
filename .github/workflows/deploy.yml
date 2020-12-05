@@ -28,6 +28,7 @@ jobs:
 
     - name: Lint
       run: npm run lint 
+      env:
         bot_key: ${{ secrets.BOT_KEY }}
         db_string: ${{ secrets.DB_STRING }}
 
