@@ -11,6 +11,10 @@ module.exports = {
     try {
       const asker = await user.findOne({ discord_id: message.author.id }).exec();
 
+      if(!asker) {
+        message.reply("you haven't answered any problems.");
+      }
+
       const embed = new MessageEmbed()
         .setColor(color)
         .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
