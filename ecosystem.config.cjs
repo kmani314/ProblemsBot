@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'ProblemsBot',
-      script: 'npm start',
+      script: 'npm run start',
       autorestart: true,
       max_restarts: 25,
       watch: false,
@@ -13,13 +13,12 @@ module.exports = {
   deploy: {
     production: {
       user: 'krishna',
-      key: '~/.ssh/deploy.key',
       host: 'sidmani.com',
       ref: 'origin/master',
       repo: 'https://github.com/kmani314/ProblemsBot',
-      path: '/home/user/ProblemsBot',
-      'pre-deploy-local': 'rm -rf /home/krishna/ProblemsBot',
-      'post-deploy': 'pm2 reload ecosystem.config.js --env production',
+      path: '/home/krishna/ProblemsBot',
+      'pre-setup': 'rm -rf /home/krishna/ProblemsBot',
+      'post-deploy': 'npm install && pm2 startOrRestart ecosystem.config.js --env production',
     },
   },
 };
