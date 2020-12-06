@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
-import { problem, user } from '../schema.js';
+import { problem } from '../schema.js';
+import db from '../db.js';
 import config from '../../config.json';
 
 export default {
@@ -7,13 +8,11 @@ export default {
   description: 'mark the problem right',
   args: [],
   async execute(message) {
-    const info = message.author;
-
     try {
-      const asker = await user.findOne({ discord_id: info.id }).exec();
+      const asker = await db.getUniqueServerUser(message.guild.id, message.author.id);
 
       if (!asker) {
-        message.reply("you aren't currently solving a problem");
+        message.reply("you've never solved a problem on this server.");
         return;
       }
 

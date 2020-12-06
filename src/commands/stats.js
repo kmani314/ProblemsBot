@@ -1,5 +1,5 @@
 import { MessageEmbed } from 'discord.js';
-import { user } from '../schema.js';
+import db from '../db.js';
 import config from '../../config.json';
 
 export default {
@@ -8,7 +8,7 @@ export default {
   args: [],
   async execute(message) {
     try {
-      const asker = await user.findOne({ discord_id: message.author.id }).exec();
+      const asker = await db.getUniqueServerUser(message.guild.id, message.author.id);
 
       if (!asker) {
         message.reply("you haven't answered any problems.");
@@ -19,7 +19,7 @@ export default {
         .setColor(config.color)
         .setAuthor(`${message.member.displayName}`, message.author.avatarURL())
         .setTitle('Statistics')
-        .setDescription('Statistics can be reset with `!reset`, or for the whole server by an administrator running `!reset-all`  .')
+        .setDescription(`Statistics can be reset with \`${config.prefix}reset\`, or for the whole server by an administrator running \`${config.prefix}reset-all\`.`)
         .addFields(
           { name: '💯', value: asker.score, inline: true },
           { name: '✅', value: asker.right, inline: true },

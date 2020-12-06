@@ -43,7 +43,7 @@ client.on('guildCreate', (guild) => {
   console.log(`Joined new: ${guild.name}`);
 });
 
-client.on('guildLeave', (guild) => {
+client.on('guildDelete', (guild) => {
   db.onGuildLeave(guild);
   console.log(`Left: ${guild.name}`);
 });

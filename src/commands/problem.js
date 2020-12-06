@@ -1,5 +1,5 @@
 import { MessageAttachment, MessageEmbed } from 'discord.js';
-import { problem, user } from '../schema.js';
+import { problem } from '../schema.js';
 import db from '../db.js';
 import config from '../../config.json';
 
@@ -8,12 +8,8 @@ export default {
   description: 'get a random problem',
   args: ['search terms'],
   async execute(message) {
-    const info = message.author;
-
     try {
-      let match = await user.findOne({ discord_id: info.id }).exec();
-
-      match = await db.tryAddUser(message);
+      const asker = await db.tryAddUser(message.guild.id, message.author.id);
 
       const count = await problem.countDocuments().exec();
       const fact = Math.floor(Math.random() * count);
@@ -32,7 +28,7 @@ export default {
         .setURL(rand.url)
         .setAuthor(rand.source)
         .setDescription(rand.text)
-        .setFooter('Please run !answer when you are ready.');
+        .setFooter(`Please run ${config.prefix}answer when you are ready.`);
 
       if (figures[0]) {
         embed.attachFiles(new MessageAttachment(figures[0].img, 'figure.png'))
@@ -40,14 +36,12 @@ export default {
       }
 
       message.channel.send(embed);
-      match.start = Date.now();
 
-      /* eslint-disable */
-      match.active = rand._id;
-      match.given_problems.push(rand._id);
-      /* eslint-enable */
+      asker.start = Date.now();
+      asker.active = rand._id;
+      asker.given_problems.push(rand._id);
 
-      match.save();
+      asker.save();
     } catch (err) {
       message.reply('something went wrong.');
       console.log(err);

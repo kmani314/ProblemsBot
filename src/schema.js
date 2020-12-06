@@ -22,9 +22,10 @@ const problemSchema = new Schema({
 });
 
 const userSchema = new Schema({
+  // users will have one row for each server they are in
   discord_id: {
     type: String,
-    unique: true,
+    unique: false,
     required: true,
     dropDups: true,
   },

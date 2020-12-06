@@ -1,5 +1,5 @@
 import { MessageEmbed } from 'discord.js';
-import { user, guild } from '../schema.js';
+import db from '../db.js';
 import config from '../../config.json';
 
 export default {
@@ -8,8 +8,6 @@ export default {
   args: [],
   async execute(message) {
     try {
-      const server = await guild.findOne({ discord_id: message.guild.id }).exec();
-
       if (!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])) {
         const embed = new MessageEmbed()
           .setColor(config.color)
@@ -20,14 +18,13 @@ export default {
         return;
       }
 
+      const users = await db.getServerUsers(message.guild.id);
+
       /* eslint-disable */
-      for (const i of server.users) {
-        await user.findByIdAndDelete(i).exec();
+      for (const i of users) {
+        db.deleteUserAndReferences(message.guild.id, message.author.id);
       }
       /* eslint-enable */
-
-      server.users = [];
-      server.save();
 
       const embed = new MessageEmbed()
         .setColor(config.color)

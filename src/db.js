@@ -20,11 +20,42 @@ export default {
     });
   },
 
-  async onGuildLeave(info) {
-    const server = await guild.findOne({ discord_id: info.id }).exec();
+  async addUser(id) {
+    const dbUser = await user.create({
+      discord_id: id,
+    });
+    return dbUser;
+  },
+
+  // This is really inefficient, but it doesn't matter
+  async deleteUserAndReferences(guildId, id) {
+    const server = await guild.findOne({ discord_id: guildId }).exec();
+    const asker = await this.getUniqueServerUser(guildId, id);
+
+    if (asker) {
+      server.users.remove(asker._id);
+      server.save();
+      asker.remove();
+    }
+  },
+
+  async getServerUsers(id) {
+    const server = await guild.findOne({ discord_id: id }).exec();
+    const { users } = (await server.execPopulate('users'));
+    return users;
+  },
+
+  async getUniqueServerUser(guildId, id) {
+    const users = await this.getServerUsers(guildId);
+    if (!users) return null;
+    return users.filter((obj) => obj.discord_id === id)[0];
+  },
+
+  async onGuildLeave(guildId) {
+    const server = await this.getServerUsers(guildId);
 
     /* eslint-disable */
-    for (const i of server.users) {
+    for (const i of users) {
       await user.findByIdAndDelete(i).exec();
     }
     /* eslint-enable */
@@ -32,25 +63,19 @@ export default {
     server.remove();
   },
 
-  async addUser(info) {
-    const dbUser = await user.create({
-      discord_id: info.id,
-    });
-    return dbUser;
-  },
-
-  async tryAddUser(message) {
+  async tryAddUser(guildId, id) {
     try {
-      const info = message.author;
-      const dup = await user.findOne({ discord_id: info.id }).exec();
+      const server = await guild.findOne({ discord_id: guildId }).exec();
 
-      if (dup) {
-        return dup;
+      const match = await this.getUniqueServerUser(guildId, id);
+
+      // this user already has an entry in this server
+      if (match) {
+        return user.findById(match._id);
       }
 
-      const res = await this.addUser(info);
+      const res = await this.addUser(id);
 
-      const server = await guild.findOne({ discord_id: message.guild.id });
       server.users.push(res.id);
 
       await server.save();

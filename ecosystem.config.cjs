@@ -12,11 +12,11 @@ module.exports = {
 
   deploy: {
     production: {
-      user: 'krishna',
-      host: 'sidmani.com',
+      user: process.env.deploy_user,
+      host: process.env.deploy_host,
       ref: 'origin/master',
       repo: 'https://github.com/kmani314/ProblemsBot',
-      path: '/home/krishna/ProblemsBot',
+      path: process.env.deploy_path,
       'post-deploy': `npm install && npm run botConfig ${process.env.bot_key} ${process.env.db_string} && pm2 startOrRestart ecosystem.config.cjs`,
     },
   },
