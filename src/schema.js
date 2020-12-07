@@ -17,6 +17,8 @@ const problemSchema = new Schema({
   figures: [{ type: Schema.Types.ObjectId, ref: 'Image' }],
   answer: { type: String, default: '' },
   answerFigures: [{ type: Schema.Types.ObjectId, ref: 'Image' }],
+  problemHtml: [{ type: String, default: '' }],
+  solutionHtml: [{ type: String, default: '' }],
   source: { type: String, default: '' },
   url: { type: String, default: '' },
 });

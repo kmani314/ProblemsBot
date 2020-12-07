@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { problem, image } from '../schema';
+import { problem, image } from '../schema.js';
 
 async function addImage(path) {
   const data = fs.readFileSync(path);
