@@ -32,6 +32,12 @@ export default {
         .setURL(prob.url)
         .setDescription(prob.answer);
 
+      // discord only allows one image per embed :(
+      // figures.forEach((f, i) => {
+      //   embed.attachFiles(new MessageAttachment(f.img, `figure${i}.png`))
+      //     .setImage('attachment://figure%.png');
+      // })
+
       if (figures[0]) {
         embed.attachFiles(new MessageAttachment(figures[0].img, 'figure.png'))
           .setImage('attachment://figure.png');

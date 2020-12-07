@@ -1,5 +1,6 @@
 import https from 'https';
 import puppeteer from 'puppeteer';
+import cliProgress from 'cli-progress';
 import { problem, image } from '../schema.js';
 import config from '../../config.json';
 import db from '../db.js';
@@ -50,37 +51,29 @@ function addOuterHtml(source, a, extra) {
   </div>`.replace(fixLinks, 'https://');
 }
 
-async function scrapeAMCWebsite(ratelimit) {
+async function scrapeAMCWebsite(baseRate, variance) {
   const baseUrls = ['https://artofproblemsolving.com/wiki/index.php/AMC_10_Problems_and_Solutions'];
   const content = [];
 
+  const bar1 = new cliProgress.SingleBar({
+  }, cliProgress.Presets.legacy);
+  bar1.start(baseUrls.length, 0);
   /* eslint-disable */
   for (let i of baseUrls) {
-    await sleep(ratelimit);
     content.push(await asyncHttps(i));
+
+    const wait = baseRate + (Math.random() * 2 - 1) * variance;
+    await sleep(wait);
+    bar1.increment();
   }
+  bar1.stop();
   /* eslint-enable */
 
   const getAllContestUrls = /(?<=a href=").*(?=" title="[0-9]{4} AMC)/gm;
-  let contestUrls = content.map((c, i) => c.toString().match(getAllContestUrls)
+  const contestUrls = content.map((c, i) => c.toString().match(getAllContestUrls)
     .map((d) => new URL(d, baseUrls[i]))).flat(1);
 
-  console.log(`${contestUrls.length} contests...`);
   const problemMatch = /(?<=<li><a href=").*?Problem_[0-9]{1,2}(?!.*page does not exist)/gm;
-  const problemUrls = [];
-
-  contestUrls = [contestUrls[2], contestUrls[3]];
-  /* eslint-disable */
-  for (let i of contestUrls) {
-    await sleep(ratelimit);
-
-    const probList = await asyncHttps(i);
-    const arr = probList.toString().match(problemMatch);
-
-    problemUrls.push(...arr.map((a) => new URL(a, i)));
-  }
-  /* eslint-enable */
-  console.log(`${problemUrls.length} candidate problems...`);
 
   const matchProblemHtml = /(?<=<h2><span class="mw-headline" id="Problem[_0-9]{0,3}">Problem[ 0-9]{0,3}<\/span><\/h2>\n).*?(?=<h2>)/gms;
   const matchSolutionHtml = /(?<=<h[0-9]><span.*?id="Solution.*?">Solution.*?<\/span><\/h[0-9]>\n).+?(?=<h[0-9]>)/gms;
@@ -104,62 +97,84 @@ async function scrapeAMCWebsite(ratelimit) {
 
   // fetch problem HTML
   /* eslint-disable */
-  for (let i of problemUrls) {
-    const problemPage = await asyncHttps(i);
 
-    if (problemPage.toString().match(/These problems will not be release/gm)) {
-      console.log(`Skipping ${i.href} because it is not released.`);
-      continue;
-    }
+  console.log(`${contestUrls.length} contests...`);
+  const bar2 = new cliProgress.SingleBar({
+  }, cliProgress.Presets.legacy);
+  bar2.start(contestUrls.length * 25, 0);
 
-    let problemHtml = problemPage.toString().match(matchProblemHtml);
-    let solutionHtml = problemPage.toString().match(matchSolutionHtml);
-    const source = problemPage.toString().match(matchSource).map((t) => t.trim('\t\r\n').replace('Problems/', ''));
+  contestUrls.shift();
+  contestUrls.shift();
 
-    if (!(problemHtml && solutionHtml)) {
-      console.log(`Invalid results for ${i.href}. Skipping...`);
-      continue;
-    }
+  for (let i of contestUrls) {
+    const probList = await asyncHttps(i);
+    const arr = probList.toString().match(problemMatch);
 
-    console.log(`Matched ${i.href}`);
-    problemHtml = problemHtml.map((a) => addOuterHtml(source[0], a, ''));
-    solutionHtml = solutionHtml.map((a) => addOuterHtml(source[0], a, ' Solution'));
+    const problemUrls = arr.map((a) => new URL(a, i)).flat(1);
 
-    console.log(`Rendering ${source[0]}...`);
-
-    // const problemImg = await screenshot(problemHtml[0]);
-    const problemImgs = [];
-
-    for (let j of problemHtml) {
-      const img = await screenshot(j);
-      problemImgs.push(await image.create({ img }));
-    }
-
-    const solutionImgs = [];
-
-    for (let j of solutionHtml) {
-      const img = await screenshot(j);
-      solutionImgs.push(await image.create({ img }));
-    }
-
-    const dbProblem = {
-      difficulty: 5,
-      text: '',
-      name: '',
-      figures: problemImgs,
-      answerFigures: solutionImgs,
-      problemHtml,
-      solutionHtml,
-      source: source[0],
-      url: i.href,
-    };
-
-    await problem.create(dbProblem);
-    const wait = 5000 + (Math.random() * 2 - 1) * 5000;
-    console.log(`Waiting for ${wait}ms...`)
+    const wait = baseRate + (Math.random() * 2 - 1) * variance;
     await sleep(wait);
+
+    for (let k of problemUrls) {
+      const wait2 = baseRate + (Math.random() * 2 - 1) * variance;
+      // console.log(`Waiting for ${wait}ms...`)
+      await sleep(wait2);
+
+      const problemPage = await asyncHttps(k);
+
+      bar2.increment();
+      if (problemPage.toString().match(/These problems will not be release/gm)) {
+        // console.log(`Skipping ${k.href} because it is not released.`);
+        continue;
+      }
+
+      let problemHtml = problemPage.toString().match(matchProblemHtml);
+      let solutionHtml = problemPage.toString().match(matchSolutionHtml);
+      const source = problemPage.toString().match(matchSource).map((t) => t.trim('\t\r\n').replace('Problems/', ''));
+
+      if (!(problemHtml && solutionHtml)) {
+        // console.log(`Invalid results for ${k.href}. Skipping...`);
+        continue;
+      }
+
+      // console.log(`Matched ${i.href}`);
+      problemHtml = problemHtml.map((a) => addOuterHtml(source[0], a, ''));
+      solutionHtml = solutionHtml.map((a) => addOuterHtml(source[0], a, ' Solution'));
+
+      // console.log(`Rendering ${source[0]}...`);
+
+      // const problemImg = await screenshot(problemHtml[0]);
+      const problemImgs = [];
+
+      for (let j of problemHtml) {
+        const img = await screenshot(j);
+        problemImgs.push(await image.create({ img }));
+      }
+
+      const solutionImgs = [];
+
+      for (let j of solutionHtml) {
+        const img = await screenshot(j);
+        solutionImgs.push(await image.create({ img }));
+      }
+
+      const dbProblem = {
+        difficulty: 5,
+        text: '',
+        name: '',
+        figures: problemImgs,
+        answerFigures: solutionImgs,
+        problemHtml,
+        solutionHtml,
+        source: source[0],
+        url: k.href,
+      };
+
+      await problem.create(dbProblem);
+    }
   }
+  bar2.stop();
   await browser.close();
 }
 
-scrapeAMCWebsite(1000);
+scrapeAMCWebsite(2000, 800);

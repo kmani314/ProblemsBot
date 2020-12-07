@@ -47,3 +47,6 @@ jobs:
       env:
         bot_key: ${{ secrets.BOT_KEY }}
         db_string: ${{ secrets.DB_STRING }}
+        deploy_user: ${{ secrets.DEPLOY_USER }}
+        deploy_host: ${{ secrets.DEPLOY_HOST }}
+        deploy_path: ${{ secrets.DEPLOY_PATH }}

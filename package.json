@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/kmani314/ProblemsBot#readme",
   "dependencies": {
+    "cli-progress": "^3.8.2",
     "discord.js": "^12.5.1",
     "mongoose": "^5.11.3",
     "puppeteer": "^5.5.0",
