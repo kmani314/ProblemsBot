@@ -43,7 +43,7 @@ jobs:
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
     - name: Deploy
-      run: 'git status; npx pm2 deploy ecosystem.config.cjs production update'
+      run: 'npx pm2 deploy ecosystem.config.cjs production update'
       env:
         bot_key: ${{ secrets.BOT_KEY }}
         db_string: ${{ secrets.DB_STRING }}
