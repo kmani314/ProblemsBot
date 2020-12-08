@@ -14,6 +14,7 @@ import wrong from './commands/wrong.js';
 import stats from './commands/stats.js';
 
 const client = new Discord.Client();
+
 client.commands = new Discord.Collection();
 
 const commands = [about, answer, help, leaderboard, problem, resetAll, reset, right, wrong, stats];

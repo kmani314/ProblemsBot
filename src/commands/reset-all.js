@@ -22,7 +22,7 @@ export default {
 
       /* eslint-disable */
       for (const i of users) {
-        db.deleteUserAndReferences(message.guild.id, message.author.id);
+        db.deleteUserAndReferences(message.guild.id, i.discord_id);
       }
       /* eslint-enable */
 
