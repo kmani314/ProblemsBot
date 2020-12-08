@@ -13,6 +13,8 @@ import right from './commands/right.js';
 import wrong from './commands/wrong.js';
 import stats from './commands/stats.js';
 
+db.init();
+
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
@@ -47,8 +49,6 @@ client.on('guildDelete', (guild) => {
   db.onGuildLeave(guild);
   console.log(`Left: ${guild.name}`);
 });
-
-db.init();
 
 db.connection.once('open', () => {
   client.login(config.BOT_TOKEN);
