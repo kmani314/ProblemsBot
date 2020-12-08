@@ -13,8 +13,6 @@ import right from './commands/right.js';
 import wrong from './commands/wrong.js';
 import stats from './commands/stats.js';
 
-db.init();
-
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
@@ -40,6 +38,8 @@ client.on('message', (message) => {
   }
 });
 
+db.init();
+
 client.on('guildCreate', (guild) => {
   db.onGuildJoin(guild);
   console.log(`Joined new: ${guild.name}`);
@@ -52,5 +52,9 @@ client.on('guildDelete', (guild) => {
 
 db.connection.once('open', () => {
   client.login(config.BOT_TOKEN);
+});
+
+client.on('ready', () => {
   console.log('ProblemsBot online.');
+  client.user.setActivity(config.status);
 });

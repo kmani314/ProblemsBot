@@ -1,5 +1,10 @@
 {
     "prefix": "^",
    "color": "#fc7a1e;",
-   "version": "0.1"
+   "version": "0.1",
+   "status": "^help",
+   "status": {
+     "type": 5,
+     "name": "^help"
+   }
 }
