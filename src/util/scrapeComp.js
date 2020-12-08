@@ -1,9 +1,11 @@
 import https from 'https';
+/* eslint-disable */
 import puppeteer from 'puppeteer';
 import cliProgress from 'cli-progress';
 import { problem, image } from '../schema.js';
 import config from '../../config.json';
 import db from '../db.js';
+/* eslint-enable */
 
 async function asyncHttps(href) {
   return new Promise((resolve, reject) => {

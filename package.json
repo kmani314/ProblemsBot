@@ -29,10 +29,7 @@
   "dependencies": {
     "cli-progress": "^3.8.2",
     "discord.js": "^12.5.1",
-    "mongoose": "^5.11.3",
-    "puppeteer": "^5.5.0",
-    "stylelint-config-rational-order": "^0.1.2",
-    "stylelint-config-standard": "^20.0.0"
+    "mongoose": "^5.11.3"
   },
   "devDependencies": {
     "eslint": "^7.14.0",
@@ -40,6 +37,9 @@
     "eslint-plugin-import": "^2.22.1",
     "pm2": "^4.5.0",
     "stylelint": "^13.8.0",
-    "tap": "^14.11.0"
+    "tap": "^14.11.0",
+    "puppeteer": "^5.5.0",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^20.0.0"
   }
 }

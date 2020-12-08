@@ -48,6 +48,8 @@ client.on('guildDelete', (guild) => {
   console.log(`Left: ${guild.name}`);
 });
 
+db.init();
+
 db.connection.once('open', () => {
   client.login(config.BOT_TOKEN);
   console.log('ProblemsBot online.');

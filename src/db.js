@@ -2,15 +2,16 @@ import mongoose from 'mongoose';
 import { user, guild } from './schema.js';
 import config from '../config.json';
 
-mongoose.connect(config.dbString, {
-  useCreateIndex: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-mongoose.connection.on('error', console.error.bind(console, 'connection error: '));
-
 export default {
   connection: mongoose.connection,
+  async init() {
+    mongoose.connect(config.dbString, {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    this.connection = mongoose.connection.on('error', console.error.bind(console, 'connection error: '));
+  },
   async onGuildJoin(info) {
     guild.create({ discord_id: info.id, users: [] }, (err) => {
       if (err) {
