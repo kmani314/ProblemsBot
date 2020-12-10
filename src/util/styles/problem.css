@@ -43,6 +43,10 @@ img.asy-image {
   -moz-transform: rotate(0deg); /* Firefox hack */
 }
 
+a {
+  color: var(--highlight);
+}
+
 #wrapper {
   float: left;
   padding: 8px;

@@ -21,6 +21,19 @@ export default {
     });
   },
 
+  async onReceiveDM(message) {
+    const server = await guild.findOne({ discord_id: message.author.id }).exec();
+    if (server) return false;
+
+    guild.create({ discord_id: message.author.id, users: [] }, (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+
+    return true;
+  },
+
   async addUser(id) {
     const dbUser = await user.create({
       discord_id: id,
@@ -42,6 +55,7 @@ export default {
 
   async getServerUsers(id) {
     const server = await guild.findOne({ discord_id: id }).exec();
+    if (!server) return null;
     const { users } = (await server.execPopulate('users'));
     return users;
   },
@@ -65,25 +79,20 @@ export default {
   },
 
   async tryAddUser(guildId, id) {
-    try {
-      const server = await guild.findOne({ discord_id: guildId }).exec();
+    const server = await guild.findOne({ discord_id: guildId }).exec();
 
-      const match = await this.getUniqueServerUser(guildId, id);
+    const match = await this.getUniqueServerUser(guildId, id);
 
-      // this user already has an entry in this server
-      if (match) {
-        return user.findById(match._id);
-      }
-
-      const res = await this.addUser(id);
-
-      server.users.push(res.id);
-
-      await server.save();
-      return res;
-    } catch (err) {
-      console.log(err);
-      throw err;
+    // this user already has an entry in this server
+    if (match) {
+      return user.findById(match._id);
     }
+
+    const res = await this.addUser(id);
+
+    server.users.push(res.id);
+
+    await server.save();
+    return res;
   },
 };

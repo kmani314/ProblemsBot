@@ -17,21 +17,16 @@ commands.push({ name: 'help', args: [], description: 'get this menu' });
 export default {
   name: 'help',
   async execute(message) {
-    try {
-      const fields = [];
-      commands.forEach((a) => {
-        fields.push({ name: `${config.prefix}${a.name} ${a.args.map((b) => `${b} `)}`, value: a.description });
-      });
+    const fields = [];
+    commands.forEach((a) => {
+      fields.push({ name: `${config.prefix}${a.name} ${a.args.map((b) => `${b} `)}`, value: a.description });
+    });
 
-      const embed = new MessageEmbed()
-        .setColor(config.color)
-        .setTitle('Help')
-        .addFields(fields);
+    const embed = new MessageEmbed()
+      .setColor(config.color)
+      .setTitle('Help')
+      .addFields(fields);
 
-      message.channel.send(embed);
-    } catch (err) {
-      message.reply('Something went wrong.');
-      console.log(err);
-    }
+    message.channel.send(embed);
   },
 };

@@ -19,35 +19,23 @@ client.commands = new Discord.Collection();
 
 const commands = [about, answer, help, leaderboard, problem, resetAll, reset, right, wrong, stats];
 
+db.init();
+
 commands.forEach((c) => {
   client.commands.set(c.name, c);
 });
 
-client.on('message', (message) => {
-  if (!message.content.startsWith(config.prefix) || message.author.bot) return;
-
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
-  const command = args.shift().toLowerCase();
-
-  if (!client.commands.has(command)) return;
-
-  try {
-    client.commands.get(command).execute(message, args);
-  } catch (err) {
-    console.log(err);
-    message.reply('Internal Error!');
-  }
-});
-
-db.init();
-
 client.on('guildCreate', (guild) => {
   db.onGuildJoin(guild);
+
   console.log(`Joined new: ${guild.name}`);
+
+  const channel = guild.channels.reduce((c) => c.type === 'text')[0];
+  channel.send(`Thanks for adding ProblemsBot! For help, run \`${config.prefix}help\``);
 });
 
-client.on('guildDelete', (guild) => {
-  db.onGuildLeave(guild);
+client.on('guildDelete', async (guild) => {
+  await db.onGuildLeave(guild);
   console.log(`Left: ${guild.name}`);
 });
 
@@ -58,4 +46,27 @@ db.connection.once('open', () => {
 client.on('ready', () => {
   console.log('ProblemsBot online.');
   client.user.setActivity(config.status);
+});
+
+client.on('message', async (message) => {
+  if (!message.content.startsWith(config.prefix) || message.author.bot) return;
+
+  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+  const command = args.shift().toLowerCase();
+
+  if (!client.commands.has(command)) return;
+
+  if (!message.guild) {
+    // is a dm
+    if (await db.onReceiveDM(message)) {
+      message.author.send(`Thanks for messaging ProblemsBot. For help, run \`${config.prefix}help\``);
+    }
+  }
+
+  try {
+    await client.commands.get(command).execute(message, args);
+  } catch (err) {
+    console.log(err);
+    message.reply(`${message.guild ? 's' : 'S'}omething went wrong.`);
+  }
 });
