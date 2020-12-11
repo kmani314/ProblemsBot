@@ -25,12 +25,7 @@ export default {
     const server = await guild.findOne({ discord_id: message.author.id }).exec();
     if (server) return false;
 
-    guild.create({ discord_id: message.author.id, users: [] }, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
-
+    await guild.create({ discord_id: message.author.id, users: [] });
     return true;
   },
 
@@ -67,7 +62,8 @@ export default {
   },
 
   async onGuildLeave(guildId) {
-    const server = await this.getServerUsers(guildId);
+    const users = await this.getServerUsers(guildId);
+    const server = await guild.findOne({ discord_id: guildId }).exec();
 
     /* eslint-disable */
     for (const i of users) {
@@ -80,6 +76,7 @@ export default {
 
   async tryAddUser(guildId, id) {
     const server = await guild.findOne({ discord_id: guildId }).exec();
+    if (!server) return null;
 
     const match = await this.getUniqueServerUser(guildId, id);
 

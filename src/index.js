@@ -25,17 +25,24 @@ commands.forEach((c) => {
   client.commands.set(c.name, c);
 });
 
-client.on('guildCreate', (guild) => {
-  db.onGuildJoin(guild);
+client.on('guildCreate', async (guild) => {
+  await db.onGuildJoin(guild);
 
   console.log(`Joined new: ${guild.name}`);
 
-  const channel = guild.channels.reduce((c) => c.type === 'text')[0];
-  channel.send(`Thanks for adding ProblemsBot! For help, run \`${config.prefix}help\``);
+  // const channel = guild.channels.cache.reduce((c) => c.type === 'text').get(0);
+
+  const channels = guild.channels.cache.filter((c) => c.type === 'text');
+  /* eslint-disable */
+  for (let i of channels) {
+    i[1].send(`Thanks for adding ProblemsBot! For help, run \`${config.prefix}help\``);
+    break;
+  }
+  /* eslint-enable */
 });
 
 client.on('guildDelete', async (guild) => {
-  await db.onGuildLeave(guild);
+  await db.onGuildLeave(guild.id);
   console.log(`Left: ${guild.name}`);
 });
 
